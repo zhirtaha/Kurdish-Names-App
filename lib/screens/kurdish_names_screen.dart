@@ -12,8 +12,15 @@ class KurdishNamesList extends StatefulWidget {
 class _KurdishNamesListState extends State<KurdishNamesList> {
   KurdishNamesServices kurdishNamesServices = KurdishNamesServices();
 
-  var gender = "Male";
+  String? gender;
+  String g = "M";
   List genderList = ["Both", "Male", "Female"];
+  String? limit;
+  String lim = "10";
+  List limitList = ["10", "20", "30", "40"];
+  String? sort;
+  String s = "positive";
+  List sortList = ["positive", "negative"];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,17 +32,74 @@ class _KurdishNamesListState extends State<KurdishNamesList> {
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 DropdownButton(
+                  hint: Text('Gender'),
+                  value: gender,
                   items: genderList
                       .map((e) => DropdownMenuItem(
-                            child: Text(e),
                             value: e,
+                            child: Text(e),
                           ))
                       .toList(),
-                  onChanged: (value) {},
-                  value: gender,
+                  onChanged: (value) {
+                    setState(() {
+                      gender = value.toString();
+                      if (gender == "Male") {
+                        g = "M";
+                      } else if (gender == "Female") {
+                        g = "F";
+                      } else {
+                        g = "O";
+                      }
+                    });
+                  },
                 ),
+                DropdownButton(
+                  hint: Text('Limit'),
+                  value: limit,
+                  items: limitList
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      limit = value.toString();
+                      if (limit == "10") {
+                        lim = "10";
+                      } else if (limit == "20") {
+                        lim = "20";
+                      } else if (limit == "30") {
+                        lim = "30";
+                      } else if (limit == "40") {
+                        lim = "40";
+                      }
+                    });
+                  },
+                ),
+                DropdownButton(
+                  hint: Text('Sort By'),
+                  value: sort,
+                  items: sortList
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      sort = value.toString();
+                      if (sort == "positive") {
+                        s = "positive";
+                      } else if (sort == "negative") {
+                        s = "negative";
+                      }
+                    });
+                  },
+                )
               ],
             ),
             Expanded(
@@ -44,7 +108,8 @@ class _KurdishNamesListState extends State<KurdishNamesList> {
                 child: Container(
                   padding: EdgeInsets.all(20),
                   child: FutureBuilder<KurdishNamesModel>(
-                    future: kurdishNamesServices.getNames(),
+                    future: kurdishNamesServices.getNames(
+                        gender: g, limit: lim, sort: s),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(child: CircularProgressIndicator());
@@ -56,12 +121,11 @@ class _KurdishNamesListState extends State<KurdishNamesList> {
                       return ListView.builder(
                         itemCount: snapshot.data!.names.length,
                         itemBuilder: (context, index) {
+                          Name name = snapshot.data!.names[index];
                           return ExpansionTile(
-                            leading: Text(snapshot
-                                .data!.names[index].positive_votes
-                                .toString()),
-                            title: Text(snapshot.data!.names[index].name),
-                            children: [Text(snapshot.data!.names[index].desc)],
+                            leading: Text(name.nameId.toString().toString()),
+                            title: Text(name.name),
+                            children: [Text(name.desc)],
                           );
                         },
                       );
